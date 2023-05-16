@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Slot Machine</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      text-align: center;
+      margin-top: 100px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    p {
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    #slots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 30px;
+    }
+
+    .slot {
+      width: 80px;
+      height: 80px;
+      background-color: #fff;
+      border-radius: 5px;
+      margin: 10px;
+      font-size: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s ease-in-out;
+    }
+
+    #win {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    #win.purple {
+      color: purple;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Slot Machine</h1>
+  <p>Credits: <span id="credits">1000</span></p>
+  <p>Jackpot: <span id="jackpot">0</span></p>
+  <div id="slots">
+    <div class="slot" id="slot1"></div>
+    <div class="slot" id="slot2"></div>
+    <div class="slot" id="slot3"></div>
+  </div>
+  <p id="win"></p>
+  <button onclick="spin(100)">Bet 100</button>
+  <button onclick="spin(500)">Bet 500</button>
+  <button onclick="spin(1000)">Bet 1000</button>
+
+  <script>
+    var credits = 1000;
+    var jackpot = 0;
+    var symbols = ["♠", "♥", "♦", "♣"];
+
+    function updateCredits() {
+      document.getElementById("credits").textContent = credits;
+    }
+
+    function updateJackpot() {
+      document.getElementById("jackpot").textContent = jackpot;
+    }
+
+    function updateWin(message, color) {
+      var winElement = document.getElementById("win");
+      winElement.textContent = message;
+      winElement.className = color || "";
+    }
+
+    function getSymbolMultiplier(symbol) {
+      switch (symbol) {
+        case "♠":
+          return 5;
+        case "♥":
+          return 4;
+        case "♦":
+          return 3;
+        case "♣":
+          return 2;
+      }
+    }
+
+    function spin(bet) {
+      if (bet > credits) {
+        alert("Insufficient credits!");
+        return;
+      }
+
+      credits -= bet;
+      updateCredits();
+
+      var slots = document.getElementsByClassName("slot");
+
+      var rollIndex = 0;
+      var rollInterval = setInterval(function () {
+        for (var i = 0; i < slots.length; i++) {
+          var randomIndex = Math.floor(Math.random() * symbols.length);
+          slots[i].textContent = symbols[randomIndex];
+}
+    rollIndex++;
+
+    if (rollIndex === 10) {
+      clearInterval(rollInterval);
+
+      var finalIndices = Array.from(slots).map(function (slot) {
+        return symbols.indexOf(slot.textContent);
+      });
+
+      if (finalIndices.every(function (index) {
+        return index === finalIndices[0];
+      })) {
+        var symbol = symbols[finalIndices[0]];
+        var payout = bet * getSymbolMultiplier(symbol) * 10;
+        jackpot += payout;
+        credits += jackpot;
+        jackpot = 0;
+        updateCredits();
+        updateJackpot();
+        updateWin("Jackpot! You won " + payout + " for symbol " + symbol + "!", "purple");
+      } else if (finalIndices[0] === finalIndices[1] || finalIndices[1] === finalIndices[2] || finalIndices[0] === finalIndices[2]) {
+        var symbol = symbols[finalIndices[1]];
+        var payout = bet * getSymbolMultiplier(symbol) * 0.25;
+        credits += payout;
+        updateCredits();
+        updateWin("You won! You got " + payout + " for symbol " + symbol + "!");
+      } else {
+        updateWin("You lose! Try again.");
+      }
+    }
+  }, 200);
+}
+
+function init() {
+  updateCredits();
+  updateJackpot();
+  updateWin("");
+}
+
+init();
+  </script>
+
+</body></html>
